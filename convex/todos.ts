@@ -13,6 +13,7 @@ export const addTodo = mutation({
       text: args.text,
       completed: false,
       createdAt: now,
+      updatedAt: now,
     });
   },
 });
@@ -27,5 +28,50 @@ export const listTodos = query({
       .withIndex("by_createdAt")
       .order("desc")
       .collect();
+  },
+});
+
+// Toggle completed
+export const toggleTodo = mutation({
+  args: { id: v.id("todos") },
+  handler: async (ctx: any, { id }: { id: string }) => {
+    const todo = await ctx.db.get(id as any);
+    if (!todo) return;
+    await ctx.db.patch(id as any, { completed: !todo.completed, updatedAt: Date.now() });
+  },
+});
+
+// Remove todo
+export const removeTodo = mutation({
+  args: { id: v.id("todos") },
+  handler: async (ctx: any, { id }: { id: string }) => {
+    const todo = await ctx.db.get(id as any);
+    if (!todo) return; // Không tồn tại thì bỏ qua để tránh ném lỗi
+    await ctx.db.delete(id as any);
+  },
+});
+
+// Update todo text
+export const updateTodoText = mutation({
+  args: { id: v.id("todos"), text: v.string() },
+  handler: async (ctx: any, { id, text }: { id: string; text: string }) => {
+    const todo = await ctx.db.get(id as any);
+    if (!todo) return; // Không tồn tại thì bỏ qua
+    await ctx.db.patch(id as any, { text, updatedAt: Date.now() });
+  },
+});
+
+// Clear completed todos
+export const clearCompleted = mutation({
+  args: {},
+  handler: async (ctx: any) => {
+    const done = await ctx.db
+      .query("todos")
+      .withIndex("by_createdAt")
+      .filter((q: any) => q.eq(q.field("completed"), true))
+      .collect();
+    for (const t of done) {
+      await ctx.db.delete(t._id);
+    }
   },
 });
