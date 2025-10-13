@@ -12,22 +12,36 @@ export default function Home() {
   const removeTodo = useMutation(api.todos.removeTodo);
   const updateTodoText = useMutation(api.todos.updateTodoText);
   const clearCompleted = useMutation(api.todos.clearCompleted);
+  const setPriority = useMutation(api.todos.setPriority);
+  const setDueDate = useMutation(api.todos.setDueDate);
 
   const [text, setText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const [search, setSearch] = useState("");
 
   const total = todos?.length ?? 0;
   const completedCount = (todos ?? []).filter((t: any) => t.completed).length;
   const activeCount = total - completedCount;
 
+  const formatDateForInput = (ts: number) => {
+    const d = new Date(ts);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const filtered = useMemo(() => {
     if (!todos) return [] as any[];
-    if (filter === "active") return todos.filter((t: any) => !t.completed);
-    if (filter === "completed") return todos.filter((t: any) => t.completed);
-    return todos;
-  }, [todos, filter]);
+    let list = todos as any[];
+    if (filter === "active") list = list.filter((t: any) => !t.completed);
+    if (filter === "completed") list = list.filter((t: any) => t.completed);
+    const needle = search.trim().toLowerCase();
+    if (needle) list = list.filter((t: any) => (t.text || "").toLowerCase().includes(needle));
+    return list;
+  }, [todos, filter, search]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 p-6 sm:p-10">
@@ -40,28 +54,36 @@ export default function Home() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-white/70 backdrop-blur shadow-sm p-4 sm:p-6">
-          <form
-            className="flex gap-2 mb-4"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!text.trim()) return;
-              await addTodo({ text });
-              setText("");
-            }}
-          >
-            <input
-              className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-400/50"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Bạn cần làm gì hôm nay?"
-            />
-            <button
-              className="rounded-xl bg-black text-white px-4 py-2 font-medium shadow-sm hover:bg-zinc-800 active:bg-zinc-900 transition"
-              type="submit"
+          <div className="flex gap-2 mb-4">
+            <form
+              className="flex gap-2 flex-1"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!text.trim()) return;
+                await addTodo({ text });
+                setText("");
+              }}
             >
-              Thêm
-            </button>
-          </form>
+              <input
+                className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-400/50"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Bạn cần làm gì hôm nay?"
+              />
+              <button
+                className="rounded-xl bg-black text-white px-4 py-2 font-medium shadow-sm hover:bg-zinc-800 active:bg-zinc-900 transition"
+                type="submit"
+              >
+                Thêm
+              </button>
+            </form>
+            <input
+              className="w-48 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-400/50"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm kiếm..."
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <div className="inline-flex rounded-xl border border-zinc-200 p-1 bg-white">
@@ -153,6 +175,31 @@ export default function Home() {
                       <span className={`flex-1 text-zinc-800 ${todo.completed ? "line-through text-zinc-400" : ""}`}>
                         {todo.text}
                       </span>
+                      {/* Priority selector */}
+                      <select
+                        className="text-sm rounded-lg border border-zinc-200 px-2 py-1 bg-white"
+                        value={todo.priority || "medium"}
+                        onChange={(e) => setPriority({ id: todo._id, priority: e.target.value as any })}
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                      {/* Due date */}
+                      <input
+                        type="date"
+                        className="text-sm rounded-lg border border-zinc-200 px-2 py-1 bg-white"
+                        value={todo.dueDate ? formatDateForInput(todo.dueDate) : ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (!v) return setDueDate({ id: todo._id, dueDate: null });
+                          const ts = new Date(v + "T00:00:00").getTime();
+                          setDueDate({ id: todo._id, dueDate: ts });
+                        }}
+                      />
+                      {todo.dueDate && Date.now() > todo.dueDate && !todo.completed && (
+                        <span className="text-xs text-red-600">Quá hạn</span>
+                      )}
                       <button
                         className="opacity-0 group-hover:opacity-100 transition px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100"
                         onClick={() => {

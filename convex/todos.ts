@@ -67,11 +67,44 @@ export const clearCompleted = mutation({
   handler: async (ctx: any) => {
     const done = await ctx.db
       .query("todos")
-      .withIndex("by_createdAt")
+      .withIndex("by_completed")
       .filter((q: any) => q.eq(q.field("completed"), true))
       .collect();
     for (const t of done) {
       await ctx.db.delete(t._id);
     }
+  },
+});
+
+// Set priority
+export const setPriority = mutation({
+  args: { id: v.id("todos"), priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")) },
+  handler: async (ctx: any, { id, priority }: { id: string; priority: "low" | "medium" | "high" }) => {
+    const todo = await ctx.db.get(id as any);
+    if (!todo) return;
+    await ctx.db.patch(id as any, { priority, updatedAt: Date.now() });
+  },
+});
+
+// Set due date (timestamp ms)
+export const setDueDate = mutation({
+  args: { id: v.id("todos"), dueDate: v.union(v.number(), v.null()) },
+  handler: async (ctx: any, { id, dueDate }: { id: string; dueDate: number | null }) => {
+    const todo = await ctx.db.get(id as any);
+    if (!todo) return;
+    const patch: any = { updatedAt: Date.now() };
+    if (dueDate === null) patch.dueDate = undefined; else patch.dueDate = dueDate;
+    await ctx.db.patch(id as any, patch);
+  },
+});
+
+// Search by text substring (case-insensitive)
+export const searchTodos = query({
+  args: { q: v.string() },
+  handler: async (ctx: any, { q }: { q: string }) => {
+    const all = await ctx.db.query("todos").withIndex("by_createdAt").order("desc").collect();
+    const needle = q.trim().toLowerCase();
+    if (!needle) return all;
+    return all.filter((t: any) => (t.text || "").toLowerCase().includes(needle));
   },
 });

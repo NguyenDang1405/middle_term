@@ -15,5 +15,7 @@ export default defineSchema({
     updatedAt: v.optional(v.number()),
     priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"))),
     dueDate: v.optional(v.number()),
-  }).index("by_createdAt", ["createdAt"]),
+  })
+    .index("by_createdAt", ["createdAt"]) 
+    .index("by_completed", ["completed"]),
 });
