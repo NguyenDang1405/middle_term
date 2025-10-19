@@ -1,0 +1,82 @@
+[
+  {
+    "text": "Học Next.js và Convex",
+    "completed": false,
+    "createdAt": 1704067200000,
+    "priority": "high",
+    "category": "learning",
+    "dueDate": 1704153600000
+  },
+  {
+    "text": "Tạo ứng dụng Todo App",
+    "completed": true,
+    "createdAt": 1703980800000,
+    "priority": "medium",
+    "category": "work",
+    "dueDate": 1704067200000
+  },
+  {
+    "text": "Thiết kế giao diện responsive",
+    "completed": false,
+    "createdAt": 1703894400000,
+    "priority": "high",
+    "category": "work",
+    "dueDate": 1704240000000
+  },
+  {
+    "text": "Tập thể dục 30 phút",
+    "completed": false,
+    "createdAt": 1703808000000,
+    "priority": "medium",
+    "category": "health",
+    "dueDate": 1704153600000
+  },
+  {
+    "text": "Đọc sách về React",
+    "completed": true,
+    "createdAt": 1703721600000,
+    "priority": "low",
+    "category": "learning",
+    "dueDate": 1704067200000
+  },
+  {
+    "text": "Mua sắm cuối tuần",
+    "completed": false,
+    "createdAt": 1703635200000,
+    "priority": "low",
+    "category": "personal",
+    "dueDate": 1704240000000
+  },
+  {
+    "text": "Viết báo cáo dự án",
+    "completed": false,
+    "createdAt": 1703548800000,
+    "priority": "high",
+    "category": "work",
+    "dueDate": 1704153600000
+  },
+  {
+    "text": "Gọi điện cho gia đình",
+    "completed": true,
+    "createdAt": 1703462400000,
+    "priority": "medium",
+    "category": "personal",
+    "dueDate": 1704067200000
+  },
+  {
+    "text": "Học TypeScript nâng cao",
+    "completed": false,
+    "createdAt": 1703376000000,
+    "priority": "medium",
+    "category": "learning",
+    "dueDate": 1704326400000
+  },
+  {
+    "text": "Kiểm tra sức khỏe định kỳ",
+    "completed": false,
+    "createdAt": 1703289600000,
+    "priority": "high",
+    "category": "health",
+    "dueDate": 1704240000000
+  }
+]

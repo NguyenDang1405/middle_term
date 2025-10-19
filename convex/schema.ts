@@ -8,5 +8,6 @@ export default defineSchema({
     createdAt: v.number(),
     priority: v.optional(v.string()),
     category: v.optional(v.string()),
+    dueDate: v.optional(v.number()),
   }),
 });

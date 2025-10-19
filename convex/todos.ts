@@ -32,6 +32,7 @@ export const updateTodo = mutation({
     completed: v.optional(v.boolean()),
     priority: v.optional(v.string()),
     category: v.optional(v.string()),
+    dueDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;

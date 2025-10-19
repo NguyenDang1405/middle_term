@@ -6,14 +6,10 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function Home() {
-  const todos = useQuery(api.todos.listTodos);
+  const todos = useQuery(api.todos.getTodos);
   const addTodo = useMutation(api.todos.addTodo);
-  const toggleTodo = useMutation(api.todos.toggleTodo);
-  const removeTodo = useMutation(api.todos.removeTodo);
-  const updateTodoText = useMutation(api.todos.updateTodoText);
-  const clearCompleted = useMutation(api.todos.clearCompleted);
-  const setPriority = useMutation(api.todos.setPriority);
-  const setDueDate = useMutation(api.todos.setDueDate);
+  const updateTodo = useMutation(api.todos.updateTodo);
+  const deleteTodo = useMutation(api.todos.deleteTodo);
 
   const [text, setText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -107,7 +103,11 @@ export default function Home() {
             <div className="ml-auto">
               <button
                 className="text-sm px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition"
-                onClick={() => clearCompleted({})}
+                onClick={() => {
+                  // Clear completed todos
+                  const completedTodos = todos?.filter(todo => todo.completed) || [];
+                  completedTodos.forEach(todo => deleteTodo({ id: todo._id }));
+                }}
               >
                 Xóa mục đã hoàn thành
               </button>
@@ -137,7 +137,7 @@ export default function Home() {
                     className="h-5 w-5 accent-black cursor-pointer"
                     type="checkbox"
                     checked={!!todo.completed}
-                    onChange={() => toggleTodo({ id: todo._id })}
+                    onChange={() => updateTodo({ id: todo._id, completed: !todo.completed })}
                   />
 
                   {editingId === todo._id ? (
@@ -145,7 +145,7 @@ export default function Home() {
                       className="flex-1 flex gap-2"
                       onSubmit={async (e) => {
                         e.preventDefault();
-                        if (editingText.trim()) await updateTodoText({ id: todo._id, text: editingText });
+                        if (editingText.trim()) await updateTodo({ id: todo._id, text: editingText });
                         setEditingId(null);
                         setEditingText("");
                       }}
@@ -179,7 +179,7 @@ export default function Home() {
                       <select
                         className="text-sm rounded-lg border border-zinc-200 px-2 py-1 bg-white"
                         value={todo.priority || "medium"}
-                        onChange={(e) => setPriority({ id: todo._id, priority: e.target.value as any })}
+                        onChange={(e) => updateTodo({ id: todo._id, priority: e.target.value })}
                       >
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -192,9 +192,9 @@ export default function Home() {
                         value={todo.dueDate ? formatDateForInput(todo.dueDate) : ""}
                         onChange={(e) => {
                           const v = e.target.value;
-                          if (!v) return setDueDate({ id: todo._id, dueDate: null });
+                          if (!v) return updateTodo({ id: todo._id, dueDate: undefined });
                           const ts = new Date(v + "T00:00:00").getTime();
-                          setDueDate({ id: todo._id, dueDate: ts });
+                          updateTodo({ id: todo._id, dueDate: ts });
                         }}
                       />
                       {todo.dueDate && Date.now() > todo.dueDate && !todo.completed && (
@@ -211,7 +211,7 @@ export default function Home() {
                       </button>
                       <button
                         className="opacity-0 group-hover:opacity-100 transition px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-red-50 text-red-600"
-                        onClick={() => removeTodo({ id: todo._id })}
+                        onClick={() => deleteTodo({ id: todo._id })}
                       >
                         Xóa
                       </button>

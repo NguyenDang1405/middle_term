@@ -1,6 +1,6 @@
 'use client'
 
-import { Id } from '../../../convex/_generated/dataModel'
+import { Id } from '../../convex/_generated/dataModel'
 import { Check, Trash2, Edit3, Clock, AlertCircle, CheckCircle } from 'lucide-react'
 
 interface Todo {
