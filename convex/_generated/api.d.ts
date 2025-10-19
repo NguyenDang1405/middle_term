@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as client from "../client.js";
 import type * as todos from "../todos.js";
 
 /**
@@ -24,6 +25,7 @@ import type * as todos from "../todos.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  client: typeof client;
   todos: typeof todos;
 }>;
 export declare const api: FilterApi<
